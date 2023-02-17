@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
@@ -7,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IWhitelist.sol";
 
 contract CryptoDevs is ERC721Enumerable, Ownable {
-    string _tokenBaseURI;
+    string _baseTokenURI;
     uint256 public _price = 0.01 ether;
     bool public _paused;
     uint256 public maxTokenIds = 20;
@@ -22,7 +21,7 @@ contract CryptoDevs is ERC721Enumerable, Ownable {
     }
 
     constructor (string memory baseURI, address whitelistContract) ERC721("CryptoDevs", "CD") {
-        _tokenBaseURI = baseURI;
+        _baseTokenURI = baseURI;
         whitelist = IWhitelist(whitelistContract);
     }
 
@@ -51,15 +50,22 @@ contract CryptoDevs is ERC721Enumerable, Ownable {
         _safeMint(msg.sender, tokenIds);
     }
 
+     function _baseURI() internal view virtual override returns (string memory) {
+        return _baseTokenURI;
+    }
 
+     function setPaused(bool val) public onlyOwner {
+        _paused = val;
+    }
 
+    function withdraw() public onlyOwner  {
+        address _owner = owner();
+        uint256 amount = address(this).balance;
+        (bool sent, ) =  _owner.call{value: amount}("");
+        require(sent, "Failed to send Ether");
+    }
 
+    receive() external payable {}
 
-
-
-
-
-
-
-
+    fallback() external payable {}
 }
