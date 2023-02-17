@@ -1,0 +1,1 @@
+NFT Collection project using solidity and nextjs
